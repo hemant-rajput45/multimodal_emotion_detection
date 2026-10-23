@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Multimodal Emotion Detection System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="auth-body">
+    <div class="auth-wrapper">
+        <!-- Branding Card -->
+        <div class="auth-header-card">
+            <div class="auth-tag">RESEARCH PORTAL AUTHENTICATION</div>
+            <h1>Multimodal Emotion Detection</h1>
+            <p class="auth-subtitle">Fusion of Facial, Speech, and Text Modalities for Improved Accuracy</p>
+            <div class="auth-institution">
+                <span>Indira College of Engineering and Management, Pune</span>
+                <small>Department of MCA | Affiliated to SPPU (Autonomous)</small>
+            </div>
+        </div>
+
+        <!-- Auth Form Container -->
+        <div class="auth-card">
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button type="button" class="tab-btn active" id="tabSignIn">Sign In</button>
+                <button type="button" class="tab-btn" id="tabSignUp">Create Account</button>
+            </div>
+
+            <!-- Flash Error/Success Alert Box -->
+            <div id="authAlert" class="auth-alert" style="display: none;"></div>
+
+            <!-- Sign In Form -->
+            <form id="signInForm" class="auth-form" method="POST" action="/login">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" name="email" placeholder="e.g., sai.bhadre@indiraicem.ac.in" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <div class="label-row">
+                        <label for="loginPassword">Password</label>
+                    </div>
+                    <div class="password-wrapper">
+                        <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                        <button type="button" class="toggle-pwd-btn" id="toggleLoginPwd" title="Show/Hide Password">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-label">
+                        <input type="checkbox" name="remember" checked> Remember this device
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-large" id="btnSubmitLogin">
+                    <span>🔐</span> Sign In to Portal
+                </button>
+            </form>
+
+            <!-- Sign Up Form (Hidden by default) -->
+            <form id="signUpForm" class="auth-form" method="POST" action="/register" style="display: none;">
+                <div class="form-group">
+                    <label for="regName">Full Name</label>
+                    <input type="text" id="regName" name="name" placeholder="e.g., Sai Bhadre" required autocomplete="name">
+                </div>
+
+                <div class="form-group">
+                    <label for="regEmail">Institutional / College Email</label>
+                    <input type="email" id="regEmail" name="email" placeholder="e.g., name@indiraicem.ac.in" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="regRole">Role / Designation</label>
+                    <select id="regRole" name="role">
+                        <option value="Researcher (Student)">Researcher (Student)</option>
+                        <option value="Project Guide">Project Guide / Faculty</option>
+                        <option value="External Evaluator">External Evaluator</option>
+                        <option value="Guest Visitor">Guest Visitor</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="regPassword" name="password" placeholder="Create a secure password" required minlength="4" autocomplete="new-password">
+                        <button type="button" class="toggle-pwd-btn" id="toggleRegPwd" title="Show/Hide Password">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-large" id="btnSubmitRegister">
+                    <span>✨</span> Create Researcher Account
+                </button>
+            </form>
+
+            <!-- Quick Demo Credentials (Ideal for Evaluation / Viva) -->
+            <div class="quick-demo-section">
+                <span class="quick-label">⚡ Quick Demo Login (Click to Auto-fill):</span>
+                <div class="quick-buttons">
+                    <button type="button" class="chip chip-account" data-email="sai.bhadre@indiraicem.ac.in" data-pass="sai123">
+                        🎓 Sai Bhadre (Researcher)
+                    </button>
+                    <button type="button" class="chip chip-account" data-email="vaishali.hatkar@indiraicem.ac.in" data-pass="guide123">
+                        👩‍🏫 Prof. Hatkar (Guide)
+                    </button>
+                    <button type="button" class="chip chip-account" data-email="evaluator@sppu.ac.in" data-pass="demo123">
+                        👤 External Reviewer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auth Footer -->
+        <footer class="auth-footer">
+            <p>Department of Master of Computer Applications (MCA) | SPPU Autonomous</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tabSignIn = document.getElementById("tabSignIn");
+            const tabSignUp = document.getElementById("tabSignUp");
+            const signInForm = document.getElementById("signInForm");
+            const signUpForm = document.getElementById("signUpForm");
+            const authAlert = document.getElementById("authAlert");
+
+            const loginEmail = document.getElementById("loginEmail");
+            const loginPassword = document.getElementById("loginPassword");
+            const toggleLoginPwd = document.getElementById("toggleLoginPwd");
+            const regPassword = document.getElementById("regPassword");
+            const toggleRegPwd = document.getElementById("toggleRegPwd");
+
+            // Tab Switching
+            tabSignIn.addEventListener("click", () => {
+                tabSignIn.classList.add("active");
+                tabSignUp.classList.remove("active");
+                signInForm.style.display = "block";
+                signUpForm.style.display = "none";
+                authAlert.style.display = "none";
+            });
+
+            tabSignUp.addEventListener("click", () => {
+                tabSignUp.classList.add("active");
+                tabSignIn.classList.remove("active");
+                signUpForm.style.display = "block";
+                signInForm.style.display = "none";
+                authAlert.style.display = "none";
+            });
+
+            // Password Toggle Visibility
+            toggleLoginPwd.addEventListener("click", () => {
+                if (loginPassword.type === "password") {
+                    loginPassword.type = "text";
+                    toggleLoginPwd.textContent = "🙈";
+                } else {
+                    loginPassword.type = "password";
+                    toggleLoginPwd.textContent = "👁️";
+                }
+            });
+
+            toggleRegPwd.addEventListener("click", () => {
+                if (regPassword.type === "password") {
+                    regPassword.type = "text";
+                    toggleRegPwd.textContent = "🙈";
+                } else {
+                    regPassword.type = "password";
+                    toggleRegPwd.textContent = "👁️";
+                }
+            });
+
+            // Quick Demo Credentials Auto-Fill
+            document.querySelectorAll(".chip-account").forEach(chip => {
+                chip.addEventListener("click", () => {
+                    const email = chip.getAttribute("data-email");
+                    const pass = chip.getAttribute("data-pass");
+
+                    // Switch to sign in tab
+                    tabSignIn.click();
+                    loginEmail.value = email;
+                    loginPassword.value = pass;
+
+                    // Flash feedback
+                    showAlert("Credentials filled! Click 'Sign In to Portal' to proceed.", "info");
+                });
+            });
+
+            // Handle Sign In AJAX
+            signInForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById("btnSubmitLogin");
+                btn.disabled = true;
+                btn.innerHTML = "<span>⏳</span> Verifying credentials...";
+
+                const formData = new FormData(signInForm);
+
+                try {
+                    const resp = await fetch("/login", {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await resp.json();
+
+                    if (data.status === "success") {
+                        showAlert("Authentication successful! Redirecting to dashboard...", "success");
+                        setTimeout(() => {
+                            window.location.href = data.redirect || "/";
+                        }, 600);
+                    } else {
+                        showAlert(data.message || "Invalid email or password.", "error");
+                        btn.disabled = false;
+                        btn.innerHTML = "<span>🔐</span> Sign In to Portal";
+                    }
+                } catch (err) {
+                    showAlert("Network error during login: " + err.message, "error");
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>🔐</span> Sign In to Portal";
+                }
+            });
+
+            // Handle Sign Up AJAX
+            signUpForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById("btnSubmitRegister");
+                btn.disabled = true;
+                btn.innerHTML = "<span>⏳</span> Creating account...";
+
+                const formData = new FormData(signUpForm);
+
+                try {
+                    const resp = await fetch("/register", {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await resp.json();
+
+                    if (data.status === "success") {
+                        showAlert("Account registered successfully! Redirecting to dashboard...", "success");
+                        setTimeout(() => {
+                            window.location.href = data.redirect || "/";
+                        }, 800);
+                    } else {
+                        showAlert(data.message || "Registration failed.", "error");
+                        btn.disabled = false;
+                        btn.innerHTML = "<span>✨</span> Create Researcher Account";
+                    }
+                } catch (err) {
+                    showAlert("Network error during registration: " + err.message, "error");
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>✨</span> Create Researcher Account";
+                }
+            });
+
+            function showAlert(msg, type) {
+                authAlert.textContent = msg;
+                authAlert.className = `auth-alert alert-${type}`;
+                authAlert.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>

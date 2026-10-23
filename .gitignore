@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Environments
+venv/
+env/
+ENV/
+.venv
+
+# Temporary files & uploaded audio
+temp_audio.wav
+web_app/temp_audio.wav
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini

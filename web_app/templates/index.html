@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimodal Emotion Detection Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation / Header -->
+        <header class="app-header">
+            <div class="header-branding">
+                <span class="badge-tag">RESEARCH PROTOTYPE</span>
+                <h1>Deep Learning-Based Multimodal Emotion Detection</h1>
+                <p class="subtitle">Fusion of Facial, Speech, and Text Modalities for Improved Accuracy</p>
+            </div>
+            <div class="author-meta">
+                <div class="author-item">
+                    <span class="label">Researcher:</span>
+                    <span class="val">Sai Bhadre (SY MCA)</span>
+                </div>
+                <div class="author-item">
+                    <span class="label">Guide:</span>
+                    <span class="val">Prof. Vaishali Hatkar</span>
+                </div>
+                <div class="author-item">
+                    <span class="label">Affiliation:</span>
+                    <span class="val">ICEM Pune (SPPU)</span>
+                </div>
+            </div>
+            {% if current_user %}
+            <div class="user-session-bar">
+                <div class="user-profile-badge">
+                    <span class="user-icon">👤</span>
+                    <div class="user-details">
+                        <span class="user-name">{{ current_user.name }}</span>
+                        <span class="user-role">{{ current_user.role }}</span>
+                    </div>
+                </div>
+                <a href="/logout" class="btn btn-secondary btn-logout" title="Sign Out">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="main-grid">
+            <!-- Left Column: Modality Inputs -->
+            <section class="input-section card">
+                <div class="card-header">
+                    <h2><span class="num-badge">1</span> Multimodal Input Channels</h2>
+                    <div class="config-selector">
+                        <label for="configId">Configuration:</label>
+                        <select id="configId">
+                            <option value="E7" selected>E7: Facial + Speech + Text (Tri-modal)</option>
+                            <option value="E1">E1: Facial only</option>
+                            <option value="E2">E2: Speech only</option>
+                            <option value="E3">E3: Text only</option>
+                            <option value="E4">E4: Facial + Speech</option>
+                            <option value="E5">E5: Speech + Text</option>
+                            <option value="E6">E6: Facial + Text</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Modality 1: Facial -->
+                <div class="modality-card" id="faceModalityCard">
+                    <div class="modality-header">
+                        <div class="modality-title">
+                            <span class="modality-icon">📷</span>
+                            <div>
+                                <h3>Facial Modality ($X_f$)</h3>
+                                <p class="modality-desc">Visual Encoder (ResNet / EfficientNet feature extraction)</p>
+                            </div>
+                        </div>
+                        <span class="mod-status" id="faceStatus">Idle</span>
+                    </div>
+                    <div class="modality-body">
+                        <div class="face-preview-box" id="facePreviewBox">
+                            <video id="webcamVideo" autoplay playsinline style="display:none;"></video>
+                            <canvas id="snapshotCanvas" style="display:none;"></canvas>
+                            <img id="imagePreview" alt="Face preview" style="display:none;">
+                            <div class="placeholder-text" id="facePlaceholder">
+                                <span>No facial input provided</span>
+                            </div>
+                        </div>
+                        <div class="action-btn-row">
+                            <button type="button" class="btn btn-secondary" id="btnToggleWebcam">Start Webcam</button>
+                            <button type="button" class="btn btn-secondary" id="btnCapturePhoto" style="display:none;">Capture Photo</button>
+                            <label class="btn btn-secondary btn-file">
+                                Upload Photo <input type="file" id="faceFileInput" accept="image/*" style="display:none;">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modality 2: Speech -->
+                <div class="modality-card" id="speechModalityCard">
+                    <div class="modality-header">
+                        <div class="modality-title">
+                            <span class="modality-icon">🎙️</span>
+                            <div>
+                                <h3>Speech Modality ($X_s$)</h3>
+                                <p class="modality-desc">Acoustic Encoder (HuBERT / 1D-CNN + BiLSTM MFCC)</p>
+                            </div>
+                        </div>
+                        <span class="mod-status" id="speechStatus">Idle</span>
+                    </div>
+                    <div class="modality-body">
+                        <div class="audio-controls">
+                            <button type="button" class="btn btn-secondary" id="btnRecordMic">Record Mic (3s)</button>
+                            <label class="btn btn-secondary btn-file">
+                                Upload WAV <input type="file" id="audioFileInput" accept="audio/*" style="display:none;">
+                            </label>
+                        </div>
+                        <audio id="audioPlayback" controls style="display:none; width: 100%; margin-top: 10px;"></audio>
+                        <p class="file-name-indicator" id="audioFileName"></p>
+                    </div>
+                </div>
+
+                <!-- Modality 3: Text -->
+                <div class="modality-card" id="textModalityCard">
+                    <div class="modality-header">
+                        <div class="modality-title">
+                            <span class="modality-icon">💬</span>
+                            <div>
+                                <h3>Text Modality ($X_t$)</h3>
+                                <p class="modality-desc">Language Transformer Encoder (RoBERTa / BERT contextual tokens)</p>
+                            </div>
+                        </div>
+                        <span class="mod-status" id="textStatus">Idle</span>
+                    </div>
+                    <div class="modality-body">
+                        <textarea id="textInput" placeholder="Enter transcript or utterance text (e.g., 'I am so thrilled and grateful for this incredible opportunity!')..." rows="3"></textarea>
+                        <div class="sample-prompts">
+                            <span>Samples:</span>
+                            <button type="button" class="chip" data-text="I am absolutely thrilled and overjoyed today!">Happy</button>
+                            <button type="button" class="chip" data-text="I just feel completely broken, lonely, and exhausted.">Sad</button>
+                            <button type="button" class="chip" data-text="This is totally unacceptable and I am furious!">Angry</button>
+                            <button type="button" class="chip" data-text="Wait, what? I completely did not expect this at all!">Surprise</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-large" id="btnAnalyze">
+                    <span class="btn-icon">⚡</span> Run Multimodal Fusion Inference
+                </button>
+            </section>
+
+            <!-- Right Column: Inference Results & Attention Heatmaps -->
+            <section class="results-section card">
+                <div class="card-header">
+                    <h2><span class="num-badge">2</span> Multimodal Analysis & Fusion Engine</h2>
+                    <span class="badge-tag live-badge" id="inferenceBadge">Awaiting Input</span>
+                </div>
+
+                <!-- Primary Prediction Banner -->
+                <div class="result-banner" id="resultBanner">
+                    <div class="emotion-avatar" id="emotionIcon">🎭</div>
+                    <div class="emotion-meta">
+                        <span class="conf-label">Predicted Emotion</span>
+                        <h2 class="emotion-title" id="predictedEmotion">Ready for Analysis</h2>
+                        <div class="conf-meter-wrapper">
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="confidenceBar" style="width: 0%;"></div>
+                            </div>
+                            <span class="conf-pct" id="confidencePct">0.0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cross-Modal Attention & Contribution Breakdown -->
+                <div class="breakdown-card">
+                    <h3>Cross-Modal Attention & Modality Contributions</h3>
+                    <p class="section-desc">Dynamic Gating weights ($\alpha_f, \alpha_s, \alpha_t$) identifying the dominant modality.</p>
+                    <div class="contribution-bars">
+                        <div class="contrib-item">
+                            <div class="contrib-label">
+                                <span>📷 Facial Expression ($Z_f$)</span>
+                                <strong id="faceContribPct">33.3%</strong>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill fill-face" id="faceContribBar" style="width: 33.3%;"></div></div>
+                        </div>
+                        <div class="contrib-item">
+                            <div class="contrib-label">
+                                <span>🎙️ Speech Acoustics ($Z_s$)</span>
+                                <strong id="speechContribPct">33.3%</strong>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill fill-speech" id="speechContribBar" style="width: 33.3%;"></div></div>
+                        </div>
+                        <div class="contrib-item">
+                            <div class="contrib-label">
+                                <span>💬 Text Semantics ($Z_t$)</span>
+                                <strong id="textContribPct">33.3%</strong>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill fill-text" id="textContribBar" style="width: 33.3%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7 Emotion Classes Probability Distribution -->
+                <div class="breakdown-card">
+                    <h3>Emotion Probability Distribution (Softmax)</h3>
+                    <div class="classes-grid" id="classesGrid">
+                        {% for emotion in emotions %}
+                        <div class="class-prob-item" data-emotion="{{ emotion }}">
+                            <div class="cpi-head">
+                                <span class="cpi-name">{{ emotion }}</span>
+                                <span class="cpi-val">0.0%</span>
+                            </div>
+                            <div class="cpi-bar"><div class="cpi-fill" style="width: 0%;"></div></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Research Benchmarks Toggle / View -->
+                <div class="benchmark-drawer">
+                    <button type="button" class="btn btn-secondary btn-full" id="btnToggleBenchmarks">
+                        📊 View Table I: Experimental Benchmarks (E1 - E7)
+                    </button>
+                    <div class="benchmark-table-container" id="benchmarkTableContainer" style="display:none;">
+                        <table class="benchmark-table" id="benchmarkTable">
+                            <thead>
+                                <tr>
+                                    <th>Exp</th>
+                                    <th>Configuration</th>
+                                    <th>Modalities</th>
+                                    <th>Accuracy</th>
+                                    <th>Macro-F1</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded via API -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>Master of Computer Applications (MCA) Research Project | Indira College of Engineering and Management, Pune (Autonomous, SPPU)</p>
+        </footer>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

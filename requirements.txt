@@ -1,0 +1,31 @@
+# Core Deep Learning & Tensor Operations (CPU-optimized for Cloud Deployment)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Scientific & Math Computing
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Computer Vision (Headless for Cloud Linux servers without GUI)
+opencv-python-headless>=4.8.0
+pillow>=10.0.0
+
+# NLP & Language Processing
+nltk>=3.8.0
+regex>=2023.0.0
+
+# Machine Learning & Evaluation Metrics
+scikit-learn>=1.3.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+tqdm>=4.65.0
+
+# Web Application & Production WSGI Server
+flask>=3.0.0
+flask-cors>=4.0.0
+gunicorn>=21.2.0
+
+# Utilities
+pyyaml>=6.0.0
+requests>=2.31.0
