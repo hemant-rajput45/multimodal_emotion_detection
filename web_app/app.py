@@ -5,6 +5,7 @@ Contribution #5 of the research paper.
 """
 
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import sys
 import io
 import json

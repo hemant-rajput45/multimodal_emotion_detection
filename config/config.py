@@ -5,6 +5,7 @@ Student: Sai Bhadre (MCA)
 """
 
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # Emotion Categories (7 standard basic emotion categories as stated in research proposal)
 EMOTION_CLASSES = [
